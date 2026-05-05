@@ -1,0 +1,214 @@
+.nav-bar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(10, 8, 6, 0.55);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(245, 240, 232, 0.1);
+  border-radius: 50px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: box-shadow 0.4s ease;
+}
+
+.nav-bar:hover {
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ——— Brand ——— */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 16px;
+  border-right: 1px solid rgba(245, 240, 232, 0.1);
+}
+
+.nav-house-icon {
+  font-size: 1.2rem;
+  color: var(--room-accent, #e8a870);
+  transition: color 0.6s ease;
+}
+
+.nav-brand-text {
+  font-size: 1rem;
+  color: rgba(245, 240, 232, 0.8);
+  white-space: nowrap;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ——— Room Tabs ——— */
+.nav-rooms {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-room-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  color: rgba(245, 240, 232, 0.5);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  transition: color 0.3s ease, background 0.3s ease;
+  white-space: nowrap;
+}
+
+.nav-room-btn:hover {
+  color: rgba(245, 240, 232, 0.9);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-room-btn.active {
+  color: #f5f0e8;
+}
+
+.nav-room-btn:disabled {
+  pointer-events: none;
+}
+
+.nav-room-emoji {
+  font-size: 0.9rem;
+}
+
+.nav-room-label {
+  font-size: 0.82rem;
+}
+
+.nav-active-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--btn-accent, #e8a870);
+  box-shadow: 0 0 6px var(--btn-accent, #e8a870);
+}
+
+/* ——— Hamburger ——— */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.ham-line {
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: rgba(245, 240, 232, 0.7);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+
+.ham-line.open:first-child { transform: rotate(45deg) translate(3px, 3px); }
+.ham-line.open:last-child  { transform: rotate(-45deg) translate(3px, -3px); }
+
+/* ——— Mobile Menu ——— */
+.nav-mobile-menu {
+  position: fixed;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 490;
+  width: calc(100vw - 40px);
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(10, 8, 6, 0.85);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(245, 240, 232, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.nav-mobile-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: rgba(245, 240, 232, 0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  text-align: left;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-mobile-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #f5f0e8;
+}
+
+.nav-mobile-item.active {
+  color: var(--btn-accent);
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-mobile-tagline {
+  font-size: 0.72rem;
+  color: rgba(245, 240, 232, 0.35);
+  margin-left: auto;
+  font-style: italic;
+}
+
+/* ——— Room Watermark ——— */
+.room-name-watermark {
+  position: fixed;
+  bottom: 40px;
+  right: -20px;
+  z-index: 10;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+/* ——— Responsive ——— */
+@media (max-width: 640px) {
+  .nav-rooms { display: none; }
+  .nav-hamburger { display: flex; }
+  .nav-brand-text { display: none; }
+  .room-name-watermark { display: none; }
+}

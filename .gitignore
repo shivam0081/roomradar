@@ -1,0 +1,28 @@
+# Node
+node_modules
+npm-debug.log
+.DS_Store
+
+# Env files (never commit secrets!)
+.env
+*.env
+
+# Vite build output
+dist
+
+# Logs
+logs
+*.log
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.zip
+
+# Temp / dev scripts at server root
+server/fix_*.js
+server/temp_*.json
+
+# OS
+Thumbs.db
