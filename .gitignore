@@ -3,26 +3,16 @@ node_modules
 npm-debug.log
 .DS_Store
 
-# Env files (never commit secrets!)
-.env
+# Env
 *.env
 
-# Vite build output
+# Vite
 dist
 
 # Logs
 logs
 *.log
 
-# Large media files
-*.mp4
-*.mov
-*.avi
-*.zip
-
-# Temp / dev scripts at server root
-server/fix_*.js
-server/temp_*.json
-
-# OS
-Thumbs.db
+# Large raw video files at client root (not needed in repo)
+client/*.mp4
+client/*.mov
