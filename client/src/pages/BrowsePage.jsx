@@ -4,6 +4,7 @@ import api from '../services/api';
 import socket from '../services/socket';
 import { AuthContext } from '../contexts/AuthContext';
 import FocalView from '../components/FocalView';
+import RoomGallery from '../components/RoomGallery';
 
 export default function BrowsePage() {
   const { user } = useContext(AuthContext);
@@ -15,6 +16,9 @@ export default function BrowsePage() {
   const [savingShortlist, setSavingShortlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  // Gallery state
+  const [galleryRoom, setGalleryRoom] = useState(null);   // room object
+  const [galleryIndex, setGalleryIndex] = useState(0);    // current image index
 
   const loadRooms = async () => {
     setLoading(true);
@@ -199,7 +203,27 @@ export default function BrowsePage() {
         <section className="cards">
           {rooms.map((room) => (
             <FocalView key={room._id}>
-              <article className="card">
+              <article className="card room-card">
+                {/* Cover Image */}
+                {room.images?.length > 0 ? (
+                  <div
+                    className="room-card-img-wrap"
+                    onClick={() => { setGalleryRoom(room); setGalleryIndex(0); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img src={room.images[0]} alt={room.title} className="room-card-img" />
+                    {room.images.length > 1 && (
+                      <span className="room-card-view-photos">
+                        🖼 {room.images.length} photos
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="room-card-img-placeholder">
+                    <span>🏠</span>
+                  </div>
+                )}
+                <div className="room-card-body">
                 <div className="room-card-title">{room.title}</div>
                 {room.description && (
                   <p className="room-card-desc">{room.description}</p>
@@ -219,9 +243,15 @@ export default function BrowsePage() {
                 </div>
                 {room.lifestyleTags?.length > 0 && (
                   <div className="tags">
-                    {room.lifestyleTags.map((t) => (
-                      <span key={t} className="tag">{t}</span>
-                    ))}
+                    {room.lifestyleTags.map((t) => {
+                      const tagText = typeof t === 'string' ? t : t.tag;
+                      const isMandatory = t.isMandatory;
+                      const isImportant = t.weight === 2;
+                      let className = 'tag';
+                      if (isMandatory) className += ' tag-mandatory';
+                      else if (isImportant) className += ' tag-important';
+                      return <span key={tagText} className={className}>{isMandatory ? '⚠️ ' : isImportant ? '⭐ ' : ''}{tagText}</span>;
+                    })}
                   </div>
                 )}
                 <div className="actions">
@@ -257,10 +287,21 @@ export default function BrowsePage() {
                     </button>
                   )}
                 </div>
+              </div>
               </article>
             </FocalView>
           ))}
         </section>
+      )}
+
+      {/* Fullscreen Gallery */}
+      {galleryRoom && (
+        <RoomGallery
+          images={galleryRoom.images}
+          current={galleryIndex}
+          onClose={() => setGalleryRoom(null)}
+          onNav={setGalleryIndex}
+        />
       )}
     </div>
   );

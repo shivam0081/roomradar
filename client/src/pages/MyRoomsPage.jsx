@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
+import RoomGallery from '../components/RoomGallery';
 
 export default function MyRoomsPage() {
   const { user } = useContext(AuthContext);
@@ -11,6 +12,9 @@ export default function MyRoomsPage() {
   const [isError, setIsError] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
+  // Gallery state
+  const [galleryRoom, setGalleryRoom] = useState(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const loadRooms = async () => {
     setLoading(true);
@@ -80,7 +84,27 @@ export default function MyRoomsPage() {
       ) : (
         <div className="cards">
           {rooms.map((room) => (
-            <article key={room._id} className="card">
+            <article key={room._id} className="card room-card">
+              {/* Cover Image */}
+              {room.images?.length > 0 ? (
+                <div
+                  className="room-card-img-wrap"
+                  onClick={() => { setGalleryRoom(room); setGalleryIndex(0); }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <img src={room.images[0]} alt={room.title} className="room-card-img" />
+                  {room.images.length > 1 && (
+                    <span className="room-card-view-photos">
+                      🖼 {room.images.length} photos
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="room-card-img-placeholder">
+                  <span>🏠</span>
+                </div>
+              )}
+              <div className="room-card-body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
                 <div className="room-card-title">{room.title}</div>
                 <span className="rent-badge">₹{room.rent?.toLocaleString()}/mo</span>
@@ -115,7 +139,15 @@ export default function MyRoomsPage() {
 
               {room.lifestyleTags?.length > 0 && (
                 <div className="tags">
-                  {room.lifestyleTags.map((t) => <span key={t} className="tag">{t}</span>)}
+                  {room.lifestyleTags.map((t) => {
+                    const tagText = typeof t === 'string' ? t : t.tag;
+                    const isMandatory = t.isMandatory;
+                    const isImportant = t.weight === 2;
+                    let className = 'tag';
+                    if (isMandatory) className += ' tag-mandatory';
+                    else if (isImportant) className += ' tag-important';
+                    return <span key={tagText} className={className}>{isMandatory ? '⚠️ ' : isImportant ? '⭐ ' : ''}{tagText}</span>;
+                  })}
                 </div>
               )}
 
@@ -142,9 +174,20 @@ export default function MyRoomsPage() {
                   {deletingId === room._id ? 'Deleting…' : '🗑 Delete'}
                 </button>
               </div>
+            </div>
             </article>
           ))}
         </div>
+      )}
+
+      {/* Fullscreen Gallery */}
+      {galleryRoom && (
+        <RoomGallery
+          images={galleryRoom.images}
+          current={galleryIndex}
+          onClose={() => setGalleryRoom(null)}
+          onNav={setGalleryIndex}
+        />
       )}
     </div>
   );

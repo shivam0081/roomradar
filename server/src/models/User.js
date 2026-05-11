@@ -8,13 +8,21 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['renter', 'owner'], default: 'renter' },
     age: { type: Number },
     gender: { type: String, enum: ['male', 'female', 'other', 'prefer_not_to_say'], default: 'prefer_not_to_say' },
-    lifestyleTags: { type: [String], default: [] },
+    lifestyleTags: {
+      type: [{
+        tag: { type: String, required: true },
+        weight: { type: Number, default: 1 },
+        isMandatory: { type: Boolean, default: false }
+      }],
+      default: []
+    },
     preferences: {
       budgetMin: { type: Number },
       budgetMax: { type: Number },
       moveInDate: { type: Date },
       location: { type: String },
     },
+    avatar: { type: String, default: '' },
     isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }

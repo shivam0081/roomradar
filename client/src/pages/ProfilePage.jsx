@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '../services/api';
 
 const STORAGE_KEY = 'roomradar_profile_draft';
@@ -22,6 +22,11 @@ export default function ProfilePage() {
   const [isError, setIsError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  // Avatar upload
+  const [avatarFile, setAvatarFile] = useState(null);   // local File for preview
+  const [avatarPreview, setAvatarPreview] = useState(''); // object URL
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef(null);
 
   useEffect(() => {
     api.get('/profile').then((res) => {
@@ -50,33 +55,103 @@ export default function ProfilePage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const toggleTag = (tag) => {
+  const toggleTag = (tagText) => {
     setForm((prev) => {
-      const current = prev.lifestyleTags || [];
-      return {
-        ...prev,
-        lifestyleTags: current.includes(tag)
-          ? current.filter((t) => t !== tag)
-          : [...current, tag],
-      };
+      const tags = prev.lifestyleTags || [];
+      const index = tags.findIndex((t) => t.tag === tagText);
+
+      if (index === -1) {
+        // State 1: Add as Normal (weight 1)
+        return { ...prev, lifestyleTags: [...tags, { tag: tagText, weight: 1, isMandatory: false }] };
+      }
+
+      const current = tags[index];
+      const newTags = [...tags];
+
+      if (current.weight === 1 && !current.isMandatory) {
+        // State 2: Change to Important (weight 2)
+        newTags[index] = { ...current, weight: 2 };
+      } else if (current.weight === 2 && !current.isMandatory) {
+        // State 3: Change to Mandatory (weight 3, mandatory)
+        newTags[index] = { ...current, weight: 3, isMandatory: true };
+      } else {
+        // State 4: Remove
+        newTags.splice(index, 1);
+      }
+
+      return { ...prev, lifestyleTags: newTags };
     });
   };
 
   const addCustomTag = () => {
-    const tag = tagInput.trim();
-    if (!tag) return;
-    setForm((prev) => ({
-      ...prev,
-      lifestyleTags: [...new Set([...(prev.lifestyleTags || []), tag])],
-    }));
+    const tagText = tagInput.trim();
+    if (!tagText) return;
+    setForm((prev) => {
+      const tags = prev.lifestyleTags || [];
+      if (tags.some((t) => t.tag === tagText)) return prev;
+      return {
+        ...prev,
+        lifestyleTags: [...tags, { tag: tagText, weight: 1, isMandatory: false }],
+      };
+    });
     setTagInput('');
   };
 
-  const removeTag = (tag) => {
+  const removeTag = (tagText) => {
     setForm((prev) => ({
       ...prev,
-      lifestyleTags: (prev.lifestyleTags || []).filter((t) => t !== tag),
+      lifestyleTags: (prev.lifestyleTags || []).filter((t) => t.tag !== tagText),
     }));
+  };
+
+  const [enhancingBio, setEnhancingBio] = useState(false);
+
+  const enhanceBio = async () => {
+    if (!form.bio) {
+      setIsError(true);
+      setMessage('Please write some rough notes in your Bio first so the AI can help rewrite it!');
+      return;
+    }
+    setEnhancingBio(true);
+    setMessage(null);
+    try {
+      const res = await api.post('/ai/enhance-description', {
+        roughNotes: form.bio,
+        type: 'bio'
+      });
+      if (res.data.enhancedText) {
+        setForm(prev => ({ ...prev, bio: res.data.enhancedText }));
+        setIsError(false);
+        setMessage('✨ AI successfully enhanced your bio!');
+      }
+    } catch (err) {
+      setIsError(true);
+      setMessage(err.response?.data?.message || 'Failed to enhance bio.');
+    } finally {
+      setEnhancingBio(false);
+    }
+  };
+
+  const handleAvatarSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const uploadAvatar = async () => {
+    if (!avatarFile) return null;
+    const data = new FormData();
+    data.append('avatar', avatarFile);
+    setUploadingAvatar(true);
+    try {
+      const res = await api.post('/upload/avatar', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data.url;
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleSave = async (e) => {
@@ -84,8 +159,19 @@ export default function ProfilePage() {
     setMessage(null);
     setSaving(true);
     try {
+      // Upload avatar first if a new one was selected
+      let avatarUrl = form.avatar || '';
+      if (avatarFile) {
+        const uploaded = await uploadAvatar();
+        if (uploaded) {
+          avatarUrl = uploaded;
+          setAvatarFile(null);
+          setAvatarPreview('');
+        }
+      }
+
       // Remove immutable fields to prevent MongoDB errors
-      const payload = { ...form };
+      const payload = { ...form, avatar: avatarUrl };
       delete payload._id;
       delete payload.__v;
       delete payload.role;
@@ -117,8 +203,33 @@ export default function ProfilePage() {
     <div className="page" style={{ maxWidth: '1000px' }}>
       {/* Enhanced Profile header */}
       <div className="profile-header card" style={{ padding: '2rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '2rem', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(0,0,0,0))' }}>
-        <div className="avatar-circle large" style={{ width: '80px', height: '80px', fontSize: '2rem', flexShrink: 0 }}>
-          {getInitials(form.name || profile.name)}
+        {/* Avatar with upload overlay */}
+        <div
+          className="avatar-upload-wrapper"
+          onClick={() => avatarInputRef.current?.click()}
+          title="Change profile photo"
+        >
+          {avatarPreview || form.avatar ? (
+            <img
+              src={avatarPreview || form.avatar}
+              alt="Profile avatar"
+              className="avatar-img large"
+            />
+          ) : (
+            <div className="avatar-circle large" style={{ width: '80px', height: '80px', fontSize: '2rem', flexShrink: 0 }}>
+              {getInitials(form.name || profile.name)}
+            </div>
+          )}
+          <div className="avatar-upload-overlay">
+            {uploadingAvatar ? <div className="spinner" style={{ width: '20px', height: '20px', borderTopColor: 'white' }} /> : '📷'}
+          </div>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleAvatarSelect}
+          />
         </div>
         <div style={{ flex: 1 }}>
           <div className="profile-name" style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>{form.name || profile.name}</div>
@@ -239,14 +350,39 @@ export default function ProfilePage() {
             <div className="card">
               <div className="section-label">📝 About Me</div>
               <label>
-                Public Bio
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span>Public Bio</span>
+                  <button 
+                    type="button" 
+                    onClick={enhanceBio} 
+                    disabled={enhancingBio}
+                    style={{
+                      background: 'linear-gradient(45deg, #FF6B6B, #9B51E0)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '999px',
+                      padding: '4px 12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold',
+                      cursor: enhancingBio ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: enhancingBio ? 0.7 : 1,
+                      boxShadow: '0 4px 12px rgba(155, 81, 224, 0.4)'
+                    }}
+                  >
+                    {enhancingBio ? <div className="spinner" style={{ width: '12px', height: '12px', borderTopColor: 'white' }} /> : '✨'} 
+                    {enhancingBio ? 'Enhancing...' : 'Enhance with AI'}
+                  </button>
+                </div>
                 <textarea
                   name="bio"
-                  rows="5"
-                  placeholder="Tell potential roommates about yourself, your habits, and what you're looking for..."
+                  rows="8"
+                  placeholder="Tell potential roommates about yourself... Or just jot down bullet points and click Enhance with AI!"
                   value={form.bio || ''}
                   onChange={handleChange}
-                  style={{ resize: 'vertical', minHeight: '120px' }}
+                  style={{ resize: 'vertical', minHeight: '160px' }}
                 />
               </label>
             </div>
@@ -259,15 +395,33 @@ export default function ProfilePage() {
               </p>
 
               <div className="tag-cloud">
-                {LIFESTYLE_OPTIONS.map((tag) => {
-                  const active = (form.lifestyleTags || []).includes(tag);
+                {LIFESTYLE_OPTIONS.map((tagText) => {
+                  const tagObj = (form.lifestyleTags || []).find((t) => t.tag === tagText);
+                  
+                  let className = 'tag-interactive';
+                  let prefix = '';
+                  
+                  if (tagObj) {
+                    if (tagObj.isMandatory) {
+                      className += ' active-mandatory';
+                      prefix = '⚠️ ';
+                    } else if (tagObj.weight === 2) {
+                      className += ' active-important';
+                      prefix = '⭐ ';
+                    } else {
+                      className += ' active';
+                      prefix = '✦ ';
+                    }
+                  }
+
                   return (
                     <div
-                      key={tag}
-                      className={`tag-interactive ${active ? 'active' : ''}`}
-                      onClick={() => toggleTag(tag)}
+                      key={tagText}
+                      className={className}
+                      onClick={() => toggleTag(tagText)}
+                      title={tagObj?.isMandatory ? 'Mandatory (Dealbreaker)' : tagObj?.weight === 2 ? 'Important' : tagObj ? 'Nice to have' : 'Click to select'}
                     >
-                      {active ? '✦ ' : ''}{tag}
+                      {prefix}{tagText}
                     </div>
                   );
                 })}
@@ -297,16 +451,42 @@ export default function ProfilePage() {
               </div>
 
               {/* Display custom tags uniquely if they aren't in PRESET */}
-              {form.lifestyleTags?.some(t => !LIFESTYLE_OPTIONS.includes(t)) && (
+              {form.lifestyleTags?.some(t => !LIFESTYLE_OPTIONS.includes(t.tag)) && (
                 <div style={{ marginTop: '1.25rem' }}>
                    <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>CUSTOM TAGS</div>
                    <div className="tag-cloud">
-                     {form.lifestyleTags.filter(t => !LIFESTYLE_OPTIONS.includes(t)).map(tag => (
-                       <span key={tag} className="tag" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                         {tag}
-                         <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--danger)', fontSize: '1.1rem', cursor: 'pointer', padding: '0 0.2rem' }}>×</button>
-                       </span>
-                     ))}
+                     {form.lifestyleTags.filter(t => !LIFESTYLE_OPTIONS.includes(t.tag)).map(tagObj => {
+                       let className = 'tag-interactive';
+                       let prefix = '';
+                       
+                       if (tagObj.isMandatory) {
+                         className += ' active-mandatory';
+                         prefix = '⚠️ ';
+                       } else if (tagObj.weight === 2) {
+                         className += ' active-important';
+                         prefix = '⭐ ';
+                       } else {
+                         className += ' active';
+                         prefix = '✦ ';
+                       }
+                       
+                       return (
+                         <div
+                           key={tagObj.tag}
+                           className={className}
+                           onClick={() => toggleTag(tagObj.tag)}
+                           title={tagObj.isMandatory ? 'Mandatory (Dealbreaker)' : tagObj.weight === 2 ? 'Important' : 'Nice to have'}
+                           style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                         >
+                           {prefix}{tagObj.tag}
+                           <button 
+                             type="button" 
+                             onClick={(e) => { e.stopPropagation(); removeTag(tagObj.tag); }} 
+                             style={{ background: 'none', border: 'none', color: 'inherit', opacity: 0.7, fontSize: '1.2rem', cursor: 'pointer', padding: '0 0.2rem', marginLeft: '0.2rem' }}
+                           >×</button>
+                         </div>
+                       );
+                     })}
                    </div>
                 </div>
               )}

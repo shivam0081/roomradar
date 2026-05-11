@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "69b000730166c01897e958c8",
+    "name": "Shivam Bhatia",
+    "email": "shivambhatia008@gmail.com",
+    "passwordHash": "$2a$10$jIrSSXBScSJH2rleOKJVPuxT/p6uGtAD5KmoLPEhYSszzRDM957Se",
+    "role": "renter"
+  },
+  {
+    "_id": "69b005c0855ba47ffa6ea0cc",
+    "email": "ayesha@student.com",
+    "name": "Ayesha Patel",
+    "passwordHash": "$2a$10$3/tAm7nJgp2nsAaq0us50eFmRMTUrdjZ0zZXcXj6PTC8UVj6Cwbnm",
+    "role": "owner"
+  },
+  {
+    "_id": "69b005c0855ba47ffa6ea0cd",
+    "email": "shubham779@gmail.com",
+    "name": "Shubham Bhatia",
+    "passwordHash": "$2a$10$OUazTvWGOrtpBv42n11RruFEEBZXskLTupoCjHG2dMa49RLfM7uLq",
+    "role": "owner"
+  },
+  {
+    "_id": "69b005c0855ba47ffa6ea0ce",
+    "email": "neha@student.com",
+    "name": "Neha Singh",
+    "passwordHash": "$2a$10$83DVvQOC/sgu4cL48dGye.C06cow1f9cMMxhQhDD3LkX31K9H.AHa",
+    "role": "renter"
+  }
+]

@@ -115,7 +115,15 @@ export default function ShortlistPage() {
                     </div>
                     {item.lifestyleTags?.length > 0 && (
                       <div className="tags">
-                        {item.lifestyleTags.map((t) => <span key={t} className="tag">{t}</span>)}
+                        {item.lifestyleTags.map((t) => {
+                          const tagText = typeof t === 'string' ? t : t.tag;
+                          const isMandatory = t.isMandatory;
+                          const isImportant = t.weight === 2;
+                          let className = 'tag';
+                          if (isMandatory) className += ' tag-mandatory';
+                          else if (isImportant) className += ' tag-important';
+                          return <span key={tagText} className={className}>{isMandatory ? '⚠️ ' : isImportant ? '⭐ ' : ''}{tagText}</span>;
+                        })}
                       </div>
                     )}
                   </>

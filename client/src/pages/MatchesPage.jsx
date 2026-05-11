@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import socket from '../services/socket';
 import { AuthContext } from '../contexts/AuthContext';
+import RoomGallery from '../components/RoomGallery';
 
 export default function MatchesPage() {
   const { user } = useContext(AuthContext); // Access user for role-based logic
@@ -15,6 +16,9 @@ export default function MatchesPage() {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  // Gallery state
+  const [galleryRoom, setGalleryRoom] = useState(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const loadShortlist = async () => {
     try {
@@ -223,7 +227,27 @@ export default function MatchesPage() {
         ) : (
           <div className="cards">
             {roomMatches.map(({ room, score }) => (
-              <article key={room._id} className="card">
+              <article key={room._id} className="card room-card">
+                {/* Cover Image */}
+                {room.images?.length > 0 ? (
+                  <div
+                    className="room-card-img-wrap"
+                    onClick={() => { setGalleryRoom(room); setGalleryIndex(0); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img src={room.images[0]} alt={room.title} className="room-card-img" />
+                    {room.images.length > 1 && (
+                      <span className="room-card-view-photos">
+                        🖼 {room.images.length} photos
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="room-card-img-placeholder">
+                    <span>🏠</span>
+                  </div>
+                )}
+                <div className="room-card-body">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div className="room-card-title">{room.title}</div>
                   {room.seats <= 0 && <span className="badge badge-full">Sold Out</span>}
@@ -244,9 +268,15 @@ export default function MatchesPage() {
                 <ScoreBar score={score} />
                 {room.lifestyleTags?.length > 0 && (
                   <div className="tags" style={{ marginBottom: '0.5rem' }}>
-                    {room.lifestyleTags.map((t) => (
-                      <span key={t} className="tag">{t}</span>
-                    ))}
+                    {room.lifestyleTags.map((t) => {
+                      const tagText = typeof t === 'string' ? t : t.tag;
+                      const isMandatory = t.isMandatory;
+                      const isImportant = t.weight === 2;
+                      let className = 'tag';
+                      if (isMandatory) className += ' tag-mandatory';
+                      else if (isImportant) className += ' tag-important';
+                      return <span key={tagText} className={className}>{isMandatory ? '⚠️ ' : isImportant ? '⭐ ' : ''}{tagText}</span>;
+                    })}
                   </div>
                 )}
                 <div className="actions">
@@ -271,6 +301,7 @@ export default function MatchesPage() {
                     </button>
                   )}
                 </div>
+              </div>
               </article>
             ))}
           </div>
@@ -310,7 +341,15 @@ export default function MatchesPage() {
                   <ScoreBar score={score} />
                   {matchUser.lifestyleTags?.length > 0 && (
                     <div className="tags mb-2">
-                      {matchUser.lifestyleTags.map((t) => <span key={t} className="tag">{t}</span>)}
+                      {matchUser.lifestyleTags.map((t) => {
+                        const tagText = typeof t === 'string' ? t : t.tag;
+                        const isMandatory = t.isMandatory;
+                        const isImportant = t.weight === 2;
+                        let className = 'tag';
+                        if (isMandatory) className += ' tag-mandatory';
+                        else if (isImportant) className += ' tag-important';
+                        return <span key={tagText} className={className}>{isMandatory ? '⚠️ ' : isImportant ? '⭐ ' : ''}{tagText}</span>;
+                      })}
                     </div>
                   )}
                   <div className="actions" style={{ flexWrap: 'wrap', gap: '8px' }}>
@@ -355,6 +394,16 @@ export default function MatchesPage() {
           </div>
         )}
       </section>
+      )}
+
+      {/* Fullscreen Gallery */}
+      {galleryRoom && (
+        <RoomGallery
+          images={galleryRoom.images}
+          current={galleryIndex}
+          onClose={() => setGalleryRoom(null)}
+          onNav={setGalleryIndex}
+        />
       )}
     </div>
   );

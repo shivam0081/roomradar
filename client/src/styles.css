@@ -118,7 +118,7 @@
   /* Pure solid Blue */
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 999999;
   transform-origin: center;
   transition: width 0.15s ease, height 0.15s ease, background-color 0.15s ease;
 }
@@ -1743,6 +1743,18 @@ select {
   border-color: rgba(245, 183, 84, 0.4);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(245, 183, 84, 0.15);
+}
+
+.tag-important {
+  background: rgba(245, 183, 84, 0.1);
+  border-color: rgba(245, 183, 84, 0.5);
+  color: var(--primary);
+}
+
+.tag-mandatory {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
 }
 
 .badge {
@@ -3663,4 +3675,454 @@ select {
   filter: drop-shadow(0 0 4px rgba(255,100,50,0.5));
 }
 
+/* ============================================================
+   Cloudinary Image Components
+   ============================================================ */
 
+/* Room card — wrap so image + body are stacked vertically */
+.room-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* Cover image container */
+.room-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.room-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.room-card:hover .room-card-img {
+  transform: scale(1.04);
+}
+
+/* Placeholder when no images uploaded */
+.room-card-img-placeholder {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, rgba(245, 183, 84, 0.06), rgba(20, 20, 20, 0.8));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Card body (all content below the image) */
+.room-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+/* ── Image Upload Grid ── */
+.image-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.image-upload-thumb {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: var(--bg-3);
+  transition: border-color 0.2s ease;
+}
+
+.image-upload-thumb:hover {
+  border-color: var(--primary);
+}
+
+.image-upload-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Pending (not yet uploaded) state */
+.image-upload-thumb--pending {
+  border-color: rgba(245, 158, 11, 0.5);
+  opacity: 0.85;
+}
+
+/* Remove (×) button on each thumb */
+.image-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+.image-remove-btn:hover {
+  background: var(--danger);
+  transform: scale(1.1);
+}
+
+/* Cover / Pending badge overlaid on first image */
+.image-cover-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: var(--primary);
+  color: #000;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Drag-and-drop / click-to-upload zone */
+.image-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.image-upload-dropzone:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--text);
+}
+
+/* ── Avatar Upload Wrapper ── */
+.avatar-upload-wrapper {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+}
+
+.avatar-img.large {
+  width: 90px;
+  height: 90px;
+}
+
+/* Dark camera-icon overlay that appears on hover */
+.avatar-upload-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-upload-wrapper:hover .avatar-upload-overlay {
+  opacity: 1;
+}
+
+/* ============================================================
+   Room Gallery — Premium Modal Lightbox
+   ============================================================ */
+
+/* Backdrop — floating transparent overlay */
+.gallery-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(4, 6, 10, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fade-in 0.25s ease both;
+  pointer-events: none; /* Let clicks pass through to the website */
+  padding: 2rem;
+}
+
+/* Stage — floating glass modal containing image + controls */
+.gallery-stage {
+  pointer-events: auto; /* Reactivate clicks for the modal itself */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1000px;
+  background: rgba(14, 14, 16, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    0 32px 80px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 60px rgba(245, 183, 84, 0.05);
+  padding: 2.5rem 1.5rem 6rem;
+  cursor: default;
+  transform-style: preserve-3d;
+  animation: auth-card-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Main image */
+.gallery-img {
+  max-width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  animation: gallery-img-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  display: block;
+}
+
+@keyframes gallery-img-enter {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Counter — "2 / 5" top left inside modal */
+.gallery-counter {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: rgba(245, 183, 84, 0.1);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  font-family: 'Outfit', sans-serif;
+  border: 1px solid rgba(245, 183, 84, 0.2);
+}
+
+/* Generic button style */
+.gallery-btn {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: 'Outfit', sans-serif;
+  line-height: 1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gallery-btn:hover {
+  background: var(--primary-glow);
+  border-color: var(--primary);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--primary-glow-soft);
+}
+
+/* Close ✕ button — top right outside the glass modal or inside it */
+.gallery-close {
+  top: 1.25rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  z-index: 10;
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.gallery-close:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  box-shadow: 0 0 20px var(--danger-bg);
+}
+
+/* Prev / Next arrows — centered vertically, slightly outside image bounds */
+.gallery-prev,
+.gallery-next {
+  top: 50%;
+  transform: translateY(-60%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 2.2rem;
+  font-weight: 300;
+  z-index: 10;
+  padding-bottom: 4px; /* Optical alignment */
+}
+
+.gallery-prev:hover { transform: translateY(-60%) scale(1.1) translateX(-4px); }
+.gallery-next:hover { transform: translateY(-60%) scale(1.1) translateX(4px); }
+
+.gallery-prev { left: 1.5rem; }
+.gallery-next { right: 1.5rem; }
+
+/* Dot indicators */
+.gallery-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5rem;
+}
+
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.gallery-dot:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+.gallery-dot.active {
+  background: var(--primary);
+  transform: scale(1.4);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Thumbnail strip — integrated at the bottom of the modal */
+.gallery-thumbs {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.25rem;
+  max-width: calc(100% - 3rem);
+  scrollbar-width: none;
+}
+
+.gallery-thumbs::-webkit-scrollbar { display: none; }
+
+.gallery-thumb {
+  flex-shrink: 0;
+  width: 72px;
+  height: 54px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  padding: 0;
+  background: var(--bg-3);
+  opacity: 0.5;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.gallery-thumb.active {
+  border-color: var(--primary);
+  opacity: 1;
+  transform: scale(1.08) translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 12px var(--primary-glow-soft);
+}
+
+.gallery-thumb:hover:not(.active) {
+  opacity: 0.85;
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* "View all photos" pill */
+.room-card-img-wrap {
+  position: relative;
+}
+
+.room-card-view-photos {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(14, 14, 16, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.room-card:hover .room-card-view-photos {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  border-color: var(--primary-light);
+}

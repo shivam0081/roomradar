@@ -56,6 +56,8 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/connections', require('./routes/connections'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/ai', require('./routes/ai'));
 
 if (process.env.NODE_ENV !== 'production') {
   const devRoutes = require('./routes/dev');

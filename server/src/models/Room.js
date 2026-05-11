@@ -10,7 +10,15 @@ const roomSchema = new mongoose.Schema(
     seats: { type: Number, default: 1 },
     totalCapacity: { type: Number, default: 1 },
     amenities: { type: [String], default: [] },
-    lifestyleTags: { type: [String], default: [] },
+    lifestyleTags: {
+      type: [{
+        tag: { type: String, required: true },
+        weight: { type: Number, default: 1 },
+        isMandatory: { type: Boolean, default: false }
+      }],
+      default: []
+    },
+    images: { type: [String], default: [] },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
