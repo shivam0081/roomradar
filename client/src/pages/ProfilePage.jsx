@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 const STORAGE_KEY = 'roomradar_profile_draft';
 
@@ -16,6 +17,7 @@ function getInitials(name) {
 }
 
 export default function ProfilePage() {
+  const { updateUser } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({});
   const [message, setMessage] = useState(null);
@@ -181,6 +183,8 @@ export default function ProfilePage() {
 
       const res = await api.put('/profile', payload);
       setProfile(res.data);
+      setForm(res.data); // Sync form state with updated data (including new avatar URL)
+      updateUser(res.data); // Update global AuthContext state so Navbar updates instantly
       setIsError(false);
       setMessage('✅ Profile saved successfully!');
       localStorage.removeItem(STORAGE_KEY);

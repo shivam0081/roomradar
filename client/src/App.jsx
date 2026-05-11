@@ -255,7 +255,11 @@ function Layout() {
                   Sign out
                 </button>
                 <div className="user-badge-nav">
-                  <div className="user-avatar-sm">{getInitials(user.name)}</div>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="user-avatar-sm-img" />
+                  ) : (
+                    <div className="user-avatar-sm">{getInitials(user.name)}</div>
+                  )}
                 </div>
               </div>
             )}

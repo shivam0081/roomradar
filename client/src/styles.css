@@ -1113,6 +1113,21 @@ img {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.user-avatar-sm-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 10px var(--primary-glow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar-sm-img:hover {
+  transform: scale(1.12);
+  box-shadow: 0 4px 18px var(--primary-glow);
+}
+
 .user-avatar-sm:hover {
   transform: scale(1.12);
   box-shadow: 0 4px 18px var(--primary-glow);
